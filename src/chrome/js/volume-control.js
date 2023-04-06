@@ -1,9 +1,23 @@
-let audibleTabs = []; // All open tabs currently playing audio
+const tabsElement = document.getElementById('tabs');
+const themeToggle = document.getElementById('theme-toggle');
 
-const logPrefix = '[Volume Control]';
-const tabListEl = document.getElementById('tab-list');
+let audibleTabs = [];
+let isDarkMode = localStorage.getItem('dark-mode-enabled') ?? 'false';
+
+loadTheme();
+
+themeToggle.addEventListener('click', () => {
+    isDarkMode = isDarkMode === 'true' ? 'false' : 'true';
+    localStorage.setItem('dark-mode-enabled', isDarkMode);
+    loadTheme();
+});
 
 chrome.tabs.query({ audible: true }, tabs => {
+    if (tabs.length == 0) {
+        document.getElementById('no-audio').style.display = 'block';
+        return;
+    }
+
     audibleTabs = tabs;
     console.log(`${logPrefix} Tabs loaded`);
     audibleTabs.forEach(tab => {
@@ -34,7 +48,7 @@ chrome.tabs.query({ audible: true }, tabs => {
         });
 
         container.append(slider, label);
-        tabListEl.appendChild(container);
+        tabsElement.appendChild(container);
     })
 });
 
@@ -49,4 +63,23 @@ function setVolume(volume) {
     for (const video of videoElements) {
         video.volume = volume / 100;
     }
+}
+
+function loadTheme() {
+    const root = document.documentElement.style;
+    if (isDarkMode === 'true') {
+        themeToggle.src = '../images/dark-mode.svg';
+        themeToggle.alt = 'Toggle Light Mode';
+        themeToggle.title = 'Toggle Light Mode';
+        root.setProperty('--bg-color-primary', '#212121');
+        root.setProperty('--bg-color-secondary', '#121212');
+        root.setProperty('--text-color', '#ededed');
+        return;
+    }
+    themeToggle.src = '../images/light-mode.svg';
+    themeToggle.alt = 'Toggle Dark Mode';
+    themeToggle.title = 'Toggle Dark Mode';
+    root.setProperty('--bg-color-primary', null);
+    root.setProperty('--bg-color-secondary', null);
+    root.setProperty('--text-color', null);
 }
