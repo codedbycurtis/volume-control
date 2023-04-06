@@ -19,7 +19,6 @@ chrome.tabs.query({ audible: true }, tabs => {
     }
 
     audibleTabs = tabs;
-    console.log(`${logPrefix} Tabs loaded`);
     audibleTabs.forEach(tab => {
         let container = document.createElement('div');
 
