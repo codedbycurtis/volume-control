@@ -8,5 +8,8 @@
       "default_icon": "images/equalizer.png"
     },
     "permissions": ["tabs", "scripting"],
-    "host_permissions": ["<all_urls>"]
+    "host_permissions": ["<all_urls>"],
+    "background": {
+      "scripts": ["js/background.js"]
+    }
 }
