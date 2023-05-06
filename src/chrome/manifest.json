@@ -7,9 +7,13 @@
       "default_popup": "html/volume-control.html",
       "default_icon": "images/equalizer.png"
     },
-    "permissions": ["tabs", "scripting"],
     "host_permissions": ["<all_urls>"],
+    "permissions": ["tabs", "scripting"],
     "background": {
-      "scripts": ["js/background.js"]
-    }
+      "service_worker": "js/background.js"
+    },
+    "content_scripts": [{
+      "matches": ["<all_urls>"],
+      "js": ["js/volume-controller.js"]
+    }]
 }

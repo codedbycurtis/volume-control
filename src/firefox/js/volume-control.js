@@ -11,50 +11,66 @@ themeToggle.addEventListener('click', () => {
     loadTheme();
 });
 
-let audibleTabs = [];
+let browserTabs = [];
 
 browser.runtime
     .getBackgroundPage()
     .then(page => {
-        audibleTabs = page.getTabs();
+        browserTabs = page.getTabs();
 
-        if (audibleTabs.length == 0) {
+        if (browserTabs.length == 0) {
             document.getElementById('no-audio').style.display = 'block';
         }
         
-        audibleTabs.forEach(tab => {
+        browserTabs.forEach(tabData => {
             let container = document.createElement('div');
             container.classList.add('tabContainer');
 
             let icon = document.createElement('img');
             icon.classList.add('tabIcon');
-            icon.src = tab.favIconUrl;
+            icon.src = tabData.tab.favIconUrl;
 
             let label = document.createElement('label');
-            label.for = tab.id;
-            label.textContent = tab.title;
+            label.for = tabData.tab.id;
+            label.textContent = tabData.tab.title;
 
             let labelContainer = document.createElement('div');
+            labelContainer.classList.add('labelContainer');
             labelContainer.append(icon, label);
             
             let slider = document.createElement('input');
-            slider.id = tab.id;
+            slider.id = tabData.tab.id;
             slider.type = 'range';
             slider.min = 0;
             slider.max = 100;
-            slider.value = 100;
+            slider.value = tabData.volume;
             
             slider.addEventListener('input', async () => {
+                tabData.volume = slider.value;
+
+                if (tabData.isControllerInjected) {
+                    await browser.tabs.sendMessage(tabData.tab.id, {
+                        type: 'setVolume',
+                        value: slider.value
+                    });
+                    return;
+                }
+
                 let injectionTarget = {
-                    tabId: tab.id
+                    tabId: tabData.tab.id
                 };
                 let scriptInjection = {
-                    args: [slider.value],
+                    files: ['js/browser-polyfill.min.js', 'js/volume-controller.js'],
                     injectImmediately: true,
                     target: injectionTarget,
-                    func: setVolume
                 };
-                await browser.scripting.executeScript(scriptInjection);
+                try {
+                    await browser.scripting.executeScript(scriptInjection);
+                    tabData.isControllerInjected = true;
+                    console.log('[Volume Control Extension] Script injection successful');
+                } catch (err) {
+                    console.error(`[Volume Control Extension] An error occurred while injecting 'volume-controller.js'.\n${err}`);
+                }
             });
             
             container.append(slider, labelContainer);

@@ -76,6 +76,12 @@ input {
     margin-bottom: 1rem;
 }
 
+.labelContainer {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+}
+
 .tabIcon {
     width: 24px;
     height: 24px;

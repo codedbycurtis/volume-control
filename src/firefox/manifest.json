@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Volume Control",
+    "description": "Control the volume of individual tabs.",
+    "version": "1.0.0",
+    "action": {
+      "default_popup": "html/volume-control.html",
+      "default_icon": "images/equalizer.png"
+    },
+    "host_permissions": ["<all_urls>"],
+    "permissions": ["tabs", "scripting"],
+    "background": {
+      "scripts": ["js/background.js"]
+    },
+    "content_scripts": [{
+      "matches": ["<all_urls>"],
+      "js": ["js/volume-controller.js"]
+    }]
+}

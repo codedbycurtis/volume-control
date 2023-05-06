@@ -1,14 +1,20 @@
+let audioLimits = [];
+let videoLimits = [];
+let audioCache = [];
+let videoCache = [];
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+    if (message.type === 'setVolume') {
+        setVolume(message.value);
+    }
+});
+
 /**
  * Sets the volume of all audio and video elements in the document relative to their initial values.
  * This means that for sites like YouTube, the user's preferences are preserved between changes.
- * @param {Number} volume A value between 1 and 100 representing the new relative volume level.
+ * @param {Number} volume A value between 0 and 100 representing the new relative volume level.
  */
 function setVolume(volume) {
-    let audioLimits = JSON.parse(sessionStorage.getItem('volume-control-extension__audioLimits')) ?? {};
-    let videoLimits = JSON.parse(sessionStorage.getItem('volume-control-extension__videoLimits')) ?? {};
-    let audioCache = JSON.parse(sessionStorage.getItem('volume-control-extension__audioCache')) ?? {};
-    let videoCache = JSON.parse(sessionStorage.getItem('volume-control-extension__videoCache')) ?? {};
-    
     const audioElements = document.getElementsByTagName('audio');
     const videoElements = document.getElementsByTagName('video');
 
@@ -32,9 +38,4 @@ function setVolume(volume) {
         videoElements[i].volume = current;
         videoCache[i] = current;
     }
-
-    sessionStorage.setItem('volume-control-extension__audioLimits', JSON.stringify(audioLimits));
-    sessionStorage.setItem('volume-control-extension__videoLimits', JSON.stringify(videoLimits));
-    sessionStorage.setItem('volume-control-extension__audioCache', JSON.stringify(audioCache));
-    sessionStorage.setItem('volume-control-extension__videoCache', JSON.stringify(videoCache));
 }
